@@ -29,15 +29,25 @@
   align-items: center;
   border-radius: 50%;  /* Make it a circle */
   overflow: hidden;    /* Clip any overflow */
-  box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 1);  /* Create the hole effect */
+  box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 1);
+  z-index: 2;
 }
-
+#centerHole {
+  position: absolute;
+  width: 20px; /* Adjust the size of the hole */
+  height: 20px;
+  background-color: #fff; /* Color of the hole */
+  border-radius: 50%; /* Make it circular */
+  z-index: 2; /* Ensure it appears on top */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
 #spinningDisc {
   width: 100%;         /* Ensure the image fits the container */
   height: 100%;        /* Ensure the image fits the container */
   object-fit: cover;   /* Ensures the image covers the circular container */
   animation: spin 5s linear infinite; /* Apply the spin animation */
   border-radius: 50%;  /* Ensure it's circular */
+  animation-play-state: paused;
 }
 
 @keyframes spin {
@@ -52,6 +62,39 @@
 .play-icon{
   background: #dbb4bb;
 }
+#timestamp, #progressBar {
+  display: none; /* Hidden by default */
+ 
+}
+#timestamp {
+  font-size: 14px; /* Adjust font size */
+  white-space: nowrap; /* Prevent timestamp from wrapping */
+  text-align: left; /* Ensure timestamp is centered */
+  display: block; /* Ensure it's a block-level element */
+}
+
+#player-track {
+  position: absolute;
+  top: 0;
+  right: 15px;
+  left: 15px;
+  padding: 13px 22px 10px 184px;
+  background-color: #fff7f7;
+  border-radius: 15px 15px 0 0;
+  transition: 0.3s ease top;
+  z-index: 1;
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Stack children (timestamp and progress bar) vertically */
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  gap: 10px; /* Space between the timestamp and the progress bar */
+}
+#player-track.active {
+  top: -92px;
+  display: block; /* Show player track when active */
+  
+}
+
 
 .player-container {
   display: flex;
@@ -73,6 +116,9 @@
 }
 
 
+#player-track.active {
+  top: -42px;
+}
 
 
 #audio {
@@ -99,20 +145,26 @@
   align-items: center; /* Center the items horizontally (if needed) */
   justify-content: center;
   width: 100%; /* Ensure the container takes full width */
-  height: 100px; /* Set a fixed height for the container */
+  height: 70px; /* Set a fixed height for the container */
+  z-index: 1;
 }
 
+
 #progressBar {
-  position: absolute;
-  right: 10px; /* Position the progress bar 10px from the right */
-  top: 10px; /* Position the progress bar at the top of the container */
-  width: 100%; /* Set the width of the progress bar */
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #240202; /* Default progress bar color */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
+
 
 #playPauseButton {
   position: absolute;
   right: 10px; /* Position the button 10px from the right */
-  top: 50px; /* Position the button below the progress bar */
+  top: -15px; /* Position the button below the progress bar */
   margin-top: 10px; /* Adds space between the progress bar and the button */
   background-color: none;
   color: #dbb4bb;
@@ -148,37 +200,45 @@
   color: white;
   display: none;
 }
-
-
-#customControls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-
+/* Style the range to make it look like a progress bar */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 8px;
-  background: #ddd;
+  width: 100%;
+  background: #ddd; /* Default background */
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s ease;
+  display: block;
+  outline: none;
+}
+
+/* Hide the thumb (slider handle) completely */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  background: transparent; /* Hide the thumb */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  background: transparent; /* Hide the thumb */
 }
 
 input[type="range"]:focus {
   outline: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 16px;
-  width: 16px;
-  background: #dbb4bb;
-  border-radius: 50%;
-  cursor: pointer;
+/* Update the background color of the progress bar on play */
+input[type="range"]:active {
+  background: #ff0000; /* Red when user is dragging the slider */
 }
+
+
 
 .photo-container {
   position: relative;
@@ -206,8 +266,10 @@ input[type="range"]::-webkit-slider-thumb {
   opacity: 1;
   transform: rotate(-10deg);
   background: white;
-  transition: transform 0.2s ease, opacity 9s ease;
+  transition: all 2.5s ease-in-out;
+  transform: scale(0.8); 
 }
+
 
 select, button {
   padding: 10px;
@@ -327,7 +389,7 @@ select:focus, button:focus {
     <select id="songSelect">
       <option value="">Choose a song...</option>
       <option value="song1">Blue by Yung Kai</option>
-      <option value="song2">Blue Butterflies by Jin Kazama</option>
+      <option value="song2">Blue Butterflies</option>
     </select>
     <button id="playButton">Play</button>
   </div>
@@ -341,15 +403,20 @@ select:focus, button:focus {
       <source id="audioSource" type="audio/mp3">
       Your browser does not support the audio element.
     </audio>
-    <div id="customControls">
-      <div id="spinningDiscContainer">
-        <img id="spinningDisc" src="images/photo9.jpg" alt="Spinning Disc">
-    </div>
-      <span id="timestamp" style="color: #dbb4bb;">0:00</span>
-      <input type="range" id="progressBar" value="0" min="0" max="100" step="1" onchange="updateCurrentTime(this.value)" style="flex-grow: 1; margin: 0 10px; width: 130px;">
-      <button id="playPauseButton" class="play-pause-btn" onclick="togglePlayPause()">
-        <span id="playPauseIcon" class="play-icon">&#9658;</span> <!-- Play Icon -->
-      </button>
+    <div id="float-player-effect">
+      <div id="player-track">
+        <span id="timestamp" style="color: #dbb4bb;">0:00</span>
+        <input type="range" id="progressBar" value="0" min="0" max="100" step="1" onchange="updateCurrentTime(this.value)">
+      </div>
+      <div id="customControls">
+        <div id="spinningDiscContainer">
+          <div id="centerHole"></div>
+          <img id="spinningDisc" src="images/photo9.jpg" alt="Spinning Disc">
+      </div>
+        <button id="playPauseButton" class="play-pause-btn" onclick="togglePlayPause()">
+          <span id="playPauseIcon" class="play-icon">&#9658;</span> <!-- Play Icon -->
+        </button>
+      </div>
     </div>
     
   </div>
@@ -410,41 +477,20 @@ select:focus, button:focus {
     const timestamp = document.getElementById('timestamp');
     const progressBar = document.getElementById('progressBar');
     const volumeControl = document.getElementById('volumeControl');
-
+    let isPlaying = false;
+    const playPauseButton = document.getElementById('playPauseButton');
+    const playPauseIcon = document.getElementById('playPauseIcon');
+    const playerTrack = document.getElementById('player-track');
     musicButton.addEventListener('click', () => {
   if (playerContainer.style.display === 'none') {
-    playerContainer.style.display = 'flex'; // Show the container
+    playerContainer.style.display = 'flex'; // Show the player container
   } else {
-    playerContainer.style.display = 'none'; // Hide the container
+    playerContainer.style.display = 'none'; // Hide the player container
   }
 });
-function togglePlayPause() {
-  const audio = document.getElementById('audioPlayer');
-  const playPauseIcon = document.getElementById('playPauseIcon');
-  const spinner = document.getElementById('spinner');
-  
-  if (audio.paused) {
-    // Start playing the audio
-    audio.play().catch((error) => {
-      console.error('Error playing audio:', error);
-    });
-    
-    // Update play/pause button icon
-    playPauseIcon.innerHTML = '&#10074;&#10074;'; // Change to pause icon (||)
-    
-    // Show the spinner
-    spinner.style.display = 'block';
-  } else {
-    // Pause the audio
-    audio.pause();
-    
-    // Update play/pause button icon
-    playPauseIcon.innerHTML = '&#9658;'; // Change to play icon (▶)
-    
-    // Hide the spinner
-    spinner.style.display = 'none';
-  }
-}
+
+
+
 
 // Event listener to stop the spinner when audio ends
 document.getElementById('audioPlayer').addEventListener('ended', function() {
@@ -458,21 +504,28 @@ document.getElementById('audioPlayer').addEventListener('ended', function() {
 
 
 // Update timestamp
+// Update progress bar and timestamp as the song plays
 audioPlayer.addEventListener('timeupdate', function() {
-  const currentTime = audioPlayer.currentTime;
-  const minutes = Math.floor(currentTime / 60);
-  const seconds = Math.floor(currentTime % 60);
-  timestamp.innerHTML = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-  
+  const currentTime = audioPlayer.currentTime; // Get current playback time
+  const minutes = Math.floor(currentTime / 60); // Get minutes
+  const seconds = Math.floor(currentTime % 60); // Get seconds
+  timestamp.innerHTML = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`; // Format timestamp
+
+  // Calculate and update the progress bar value
   const progress = (currentTime / audioPlayer.duration) * 100;
   progressBar.value = progress;
+
+  // Update the background of the progress bar to show the progress in red
+  progressBar.style.background = `linear-gradient(to right, red ${progress}%, #ddd ${progress}%)`;
+});
+audioPlayer.addEventListener('play', function () {
+  photoContainer.style.display = 'block'; // Ensure the container is visible
+  startImageStack(); // Start stacking images again
+});
+audioPlayer.addEventListener('pause', function () {
+  photoContainer.style.display = 'none'; // Hide the container
 });
 
-// Update current time when progress bar is changed
-function updateCurrentTime(value) {
-  const newTime = (value / 100) * audioPlayer.duration;
-  audioPlayer.currentTime = newTime;
-}
 
 // Set volume
 function setVolume(value) {
@@ -482,26 +535,40 @@ function setVolume(value) {
     let currentImageIndex = 0;
     const imageStack = [];
     const maxImages = 15;
-    const imageLifetime = 10000;
+    const imageLifetime = 3000;
   
-    // Handle play button click
     playButton.addEventListener('click', () => {
-      const selectedSong = songSelect.value;
-      if (selectedSong && songs[selectedSong]) {
-        audioSource.src = songs[selectedSong];
-        audioPlayerContainer.style.display = 'block'; // Show the audio player
-        audioPlayer.load();
-        audioPlayer.play().catch((error) => {
-          console.error('Error playing audio:', error);
-        });
-        photoContainer.style.display = 'block';
-        startImageStack();
-  
-        playerContainer.style.display = 'none'; // Hide the player container
-      } else {
-        alert('Please select a song first.');
-      }
-    });
+  const selectedSong = songSelect.value;
+
+  if (selectedSong && songs[selectedSong]) {
+    // Set the selected song as the source for the audio player
+    audioSource.src = songs[selectedSong];
+
+    // Show the audio player container and start playback
+    audioPlayerContainer.style.display = 'block';
+    audioPlayer.load();
+    audioPlayer.play()
+      .then(() => {
+        isPlaying = true;
+
+        // Update the UI for playing state
+        playPauseIcon.innerHTML = '&#10074;&#10074;'; // Pause icon
+        spinningDisc.style.animationPlayState = 'running'; // Start spinning
+        playerTrack.classList.add('active'); // Show player track
+        timestamp.style.display = 'block'; // Show timestamp
+        progressBar.style.display = 'block'; // Show progress bar
+
+        // Hide the song selection container
+        playerContainer.style.display = 'none';
+      })
+      .catch((error) => console.error('Error playing audio:', error));
+  } else {
+    alert('Please select a song first.');
+  }
+});
+
+
+
   
     // Love letter button click
     loveButton.addEventListener('click', () => {
@@ -544,12 +611,12 @@ function setVolume(value) {
     if (imageStack.length > maxImages) {
       const oldImage = imageStack.shift();
       oldImage.style.opacity = 0;
-      setTimeout(() => oldImage.remove(), 5000);
+      setTimeout(() => oldImage.remove(), 2100);
     }
 
     setTimeout(() => {
       newImage.style.opacity = 0;
-      setTimeout(() => newImage.remove(), 5000);
+      setTimeout(() => newImage.remove(), 2100);
     }, imageLifetime);
   };
 
@@ -612,27 +679,84 @@ $(document).ready(function () {
 
 });
 
-// Function to toggle between play and pause states
 function togglePlayPause() {
-  const audio = document.getElementById('audioPlayer');
-  const playPauseIcon = document.getElementById('playPauseIcon');
-  const spinner = document.getElementById('spinner');
-  
-  if (audio.paused) {
-    audio.play();
-    playPauseIcon.innerHTML = '&#10074;&#10074;'; // Change to pause icon (||)
-    spinner.style.display = 'block'; // Show the spinner
-  } else {
-    audio.pause();
-    playPauseIcon.innerHTML = '&#9658;'; // Change to play icon (▶)
-    spinner.style.display = 'none'; // Hide the spinner
-  }
+    const audio = document.getElementById('audioPlayer');
+    const playPauseIcon = document.getElementById('playPauseIcon');
+    const timestamp = document.getElementById('timestamp');
+    const progressBar = document.getElementById('progressBar');
+    const playerTrack = document.getElementById('player-track');
+    const spinningDisc = document.getElementById('spinningDisc');
+
+    if (audio.paused) {
+        // Start playing the audio
+        audio.play();
+        playPauseIcon.innerHTML = '&#10074;&#10074;'; // Change to pause icon
+        isPlaying = true;
+
+        // Show the player track and other elements
+        playerTrack.classList.add('active');
+        timestamp.style.display = 'block'; // Show timestamp
+        progressBar.style.display = 'block'; // Show progress bar
+        spinningDisc.style.animationPlayState = 'running';
+    } else {
+        // Pause the audio
+        audio.pause();
+        playPauseIcon.innerHTML = '&#9658;'; // Change to play icon
+        isPlaying = false;
+
+        // Hide the player track and other elements
+        playerTrack.classList.remove('active');
+        timestamp.style.display = 'none'; // Hide timestamp
+        progressBar.style.display = 'none'; // Hide progress bar
+        spinningDisc.style.animationPlayState = 'paused';
+    }
 }
+
+
 
 // Event listener to stop the spinner when audio ends
 document.getElementById('audioPlayer').addEventListener('ended', function() {
   document.getElementById('spinner').style.display = 'none';
   document.getElementById('playPauseIcon').innerHTML = '&#9658;'; // Reset to play icon
+});
+let isTouching = false;
+
+// Start tracking touch
+progressBar.addEventListener("touchstart", (e) => {
+  isTouching = true;
+  handleTouchMove(e.touches[0]);
+});
+
+// Update progress during the touch
+progressBar.addEventListener("touchmove", (e) => {
+  if (isTouching) {
+    handleTouchMove(e.touches[0]);
+  }
+});
+
+// Stop tracking touch
+progressBar.addEventListener("touchend", () => {
+  isTouching = false;
+});
+
+// Function to handle touch movement
+function handleTouchMove(touch) {
+  const rect = progressBar.getBoundingClientRect();
+  const offsetX = touch.clientX - rect.left;
+  const newValue = (offsetX / rect.width) * progressBar.max;
+  progressBar.value = Math.max(0, Math.min(newValue, progressBar.max)); // Ensure value stays in range
+  updateCurrentTime(progressBar.value); // Update audio progress
+}
+
+// Function to sync progress bar and audio time
+function updateCurrentTime(value) {
+  const newTime = (value / 100) * audioPlayer.duration;
+  audioPlayer.currentTime = newTime;
+}
+audio.addEventListener('ended', () => {
+  playPauseIcon.innerHTML = '&#9658;'; // Reset to play icon
+  spinningDisc.style.animationPlayState = 'paused';
+  isPlaying = false;
 });
 
 
