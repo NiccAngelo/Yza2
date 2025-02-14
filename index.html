@@ -94,6 +94,28 @@
   display: block; /* Show player track when active */
   
 }
+.floating-screen {
+  display: block; /* Hidden by default */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px; /* Adjust as needed */
+  padding: 20px;
+  background-color: white;
+  border: 2px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.floating-screen .content {
+  text-align: center;
+}
+
+.floating-screen button {
+  margin-top: 10px;
+  padding: 5px 10px;
+}
 
 
 .player-container {
@@ -252,6 +274,21 @@ input[type="range"]:active {
 }
 
 
+.love-button2 {
+  position: absolute;
+  top: 81%; /* Adjust as needed */
+  left: 92%; /* Adjust as needed */
+  transform: translate(-50%, -50%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 30px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+  opacity: 70%;
+}
+
+
+
 
 .photo {
   position: absolute;
@@ -271,7 +308,7 @@ input[type="range"]:active {
 }
 
 
-select, button {
+select {
   padding: 10px;
   margin: 10px;
   font-size: 16px;
@@ -285,7 +322,7 @@ select, button {
   transition: all 0.3s ease;
 }
 
-select:focus, button:focus {
+select:focus:focus {
   outline: none;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
@@ -305,23 +342,86 @@ select:focus, button:focus {
   height: 50px;
   box-shadow: 29px 29px 57px #75834d, -29px -29px 57px #9fb169;
   transition: transform 0.3s ease-in-out;
+  color: #fcfcfc;
 }
 
 .love-button:hover {
   transform: scale(1.1);
 }
+.floating-screen {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px; /* Adjust as needed */
+  padding: 20px;
+  background-color: white;
+  border: 2px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
+/* Display the floating screen */
+.floating-screen.show {
+  display: block;
+  opacity: 1;
+}
+
+
+/* Styling for the close button */
+#closeScreen {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #f44336; /* Red color for close button */
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for the close button */
+#closeScreen:hover {
+  background-color: #d32f2f;
+}
 .love-letter {
   position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #c73853;
-  padding: 20px;
-  border-radius: 29px;
-  display: none;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  width: 80%; /* Responsive width */
+  max-width: 800px; /* Limit the maximum width */
+  height: auto; /* Adjust height based on content */
+  max-height: 80%; /* Limit the maximum height */
+  transform: translate(-50%, -50%); /* Center the container */
+  background: #c73853; /* Optional background color */
+  padding: 10px; /* Adjust padding */
+  border-radius: 15px; /* Slightly round corners */
+  display: none; /* Initially hidden */
   color: white;
+  overflow: hidden; /* Prevent content overflow */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow */
 }
+
+.love-letter img {
+  width: 100%; /* Make the image responsive to container width */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 10px; /* Optional: match the container's corner rounding */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+  .love-letter {
+    width: 90%; /* Use more width for small screens */
+    max-width: 400px; /* Reduce max width */
+    padding: 5px; /* Reduce padding */
+  }
+}
+
+
+
 /* Floating Music Icon */
 .music-button {
   position: fixed;
@@ -337,6 +437,7 @@ select:focus, button:focus {
   cursor: pointer;
   z-index: 5;
   transition: transform 0.3s ease-in-out;
+  color: #fcfcfc;
 }
 
 .music-button:hover {
@@ -432,12 +533,27 @@ select:focus, button:focus {
     <i class="fas fa-envelope"></i>
   </button>
 
-  <!-- Love letter modal -->
   <div class="love-letter" id="loveLetter">
-    <h2>VERY SOON BEBII HIHIHI😘😘</h2>
-    <p></p>
+    <div class="image-container">
+      <img src="images/Pink Simple Love Letter (3).png" alt="Love Letter">
+      <button class="love-button2" id="showScreenButton">
+        <img src="images/cherry-blossom.png" alt="Heart Image">
+      </button>
+    </div>
+    <div class="button-container"></div>
+  
+    <!-- Floating screen -->
+    <div class="floating-screen" id="floatingScreen">
+      <div class="content">
+        <p>This is a floating screen.</p>
+        <button id="closeScreen">Close</button>
+      </div>
+    </div>
   </div>
-
+  
+  
+  
+  
   
   <!-- Music Player Modal (initially hidden) -->
   <div id="musicPlayerModal" class="music-player-modal" style="display: none;">
@@ -758,6 +874,23 @@ audio.addEventListener('ended', () => {
   spinningDisc.style.animationPlayState = 'paused';
   isPlaying = false;
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const showScreenButton = document.querySelector('.love-button2');
+  const floatingScreen = document.querySelector('.floating-screen');
+  const closeScreenButton = document.getElementById('closeScreen');
+
+  showScreenButton.addEventListener('click', function() {
+    console.log('Button clicked to show screen');
+    floatingScreen.classList.add('show');
+  });
+
+  closeScreenButton.addEventListener('click', function() {
+    console.log('Button clicked to close screen');
+    floatingScreen.classList.remove('show');
+  });
+});
+
+
 
 
 
