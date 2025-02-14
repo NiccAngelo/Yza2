@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>For MyBaby😘</title>
+  <link rel="icon" type="image/png" href="images/love.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Add Font Awesome icons -->
   <style>  
    body {
@@ -185,12 +186,35 @@
 
 #playPauseButton {
   position: absolute;
-  right: 10px; /* Position the button 10px from the right */
-  top: -15px; /* Position the button below the progress bar */
-  margin-top: 10px; /* Adds space between the progress bar and the button */
-  background-color: none;
-  color: #dbb4bb;
+  right: 10px;
+  top: -5px; /* Adjust as needed */
+  margin-top: 10px;
+  
+  background-color: #dbb4bb; /* Light pink background */
+  color: white; /* White icon */
+  
+  border: none; /* Remove border */
+  border-radius: 5px; /* Slightly rounded edges for a clean look */
+  width: 40px; /* Set width */
+  height: 40px; /* Set height */
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); /* Soft shadow */
+  transition: background-color 0.3s ease;
 }
+
+#playPauseButton:hover {
+  background-color: #c89aa2; /* Darker pink on hover */
+}
+
+#playPauseButton i {
+  font-size: 18px; /* Adjust icon size */
+}
+
 
 
 
@@ -444,6 +468,26 @@ select:focus:focus {
   transform: scale(1.1);
 }
 
+.valentines-greet {
+  position: fixed;
+  top: 160px;
+  right: 20px;
+  background: #ff8164;
+  border: none;
+  width: 50px;
+  height: 50px;
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.3s ease-in-out;
+  color: #fcfcfc;
+}
+.valentines-greet :hover {
+  transform: scale(1.1);
+}
+
 /* Modal for selecting song (initially hidden) */
 .music-player-modal {
   position: fixed;
@@ -498,6 +542,11 @@ select:focus:focus {
   <button class="music-button" id="musicButton">
     <i class="fas fa-music"></i>
   </button>
+  <a href="E:\Bebi\valentines_greet.html">
+    <button class="valentines-greet">
+        <i class="fas fa-heart"></i>
+    </button>
+</a>
   
   <div id="audioPlayerContainer" style="display: none; max-width: 500px;">
     <audio id="audioPlayer">
@@ -535,7 +584,7 @@ select:focus:focus {
 
   <div class="love-letter" id="loveLetter">
     <div class="image-container">
-      <img src="images/Pink Simple Love Letter (3).PNG" alt="Love Letter">
+      <img src="images/Pink Simple Love Letter (3).png" alt="Love Letter">
       <button class="love-button2" id="showScreenButton">
         <img src="images/cherry-blossom.png" alt="Heart Image">
       </button>
@@ -854,6 +903,11 @@ progressBar.addEventListener("touchmove", (e) => {
 progressBar.addEventListener("touchend", () => {
   isTouching = false;
 });
+
+document.getElementById("greetButton").addEventListener("click", function() {
+  window.location.href = "valentines_greet.html"; // Replace with your actual page URL
+});
+
 
 // Function to handle touch movement
 function handleTouchMove(touch) {
